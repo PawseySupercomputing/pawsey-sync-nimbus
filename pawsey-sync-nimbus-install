@@ -4,7 +4,7 @@
 # This script creates the pawsey sync crontab and files if they do not exist
 
 ## INSTALL DEPENDENCIES
-release=`lsb_release -i | awk '{print $2}'`
+release=`lsb_release -i | awk '{print $3}'`
 if [ ! $release == "Ubuntu" ]; then
   echo 'This script supports only Ubuntu 16.04 or 18.04. Quitting ...'
   exit 1
