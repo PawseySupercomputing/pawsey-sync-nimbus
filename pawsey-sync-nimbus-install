@@ -36,18 +36,19 @@ EOL
 fi
 
 ## CREATE unsync folders file for HOME SYNC only
+OC_USER_HOME_DIR=$HOME/pawsey-sync-home
+if [ ! -d "\$OC_USER_HOME_DIR" ]; then
+  mkdir \$OC_USER_HOME_DIR
+fi
 
-if [ ! -e "$HOME/.pawsey-sync-unsynced-folders" ]
+if [ ! -e "$OC_USER_HOME_DIR/.pawsey-sync-unsynced-folders" ]
 then
-  cat > "$HOME/.pawsey-sync-unsynced-folders" << EOL
+  cat > "$OC_USER_HOME_DIR/.pawsey-sync-unsynced-folders" << EOL
 ## LIST CONTAINING FOLDERS NOT TO SYNC only for home folder
 pawsey-sync-group
 pawsey-sync-scratch
 pawsey-sync-nimbus
 EOL
-  echo "- Configuration files written. Pawsey Sync installed."
-else
-  echo "!! Pawsey sync is already installed !!"
 fi
 
 echo "IMPORTANT: Please edit the file .pawsey-sync-config to activate syncronization and for further options."
@@ -75,9 +76,6 @@ if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
   docker pull pawsey/pawsey_owncloud_client
   # IF ACTIVATED - SYNC
   if [ "\$SYNC_HOME" == "yes" ]; then
-    if [ ! -d "\$OC_USER_HOME_DIR" ]; then
-      mkdir \$OC_USER_HOME_DIR
-    fi
     #SYNC HOME DIRECTORY EXCLUDING DIRECTORY BELOW
     docker container run --mount type=bind,source="\$OC_USER_HOME_DIR",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN --unsyncedfolders /ocdata/.pawsey-sync-unsynced-folders /ocdata \$OC_SERVER
   fi
