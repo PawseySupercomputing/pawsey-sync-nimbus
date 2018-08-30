@@ -28,9 +28,9 @@ ACTIVATE_PAWSEY_SYNC=no
 OC_USERNAME=your-pawsey-username-here
 OC_DEVICE_TOKEN=device-token-goes-here
 
-# SYNC OPTIONS
-SYNC_SCRATCH=no
-SYNC_GROUP=yes
+# SYiNC OPTIONS
+NIMBUS_SYNC_DIRECTORY=/data
+SYNC_NIMBUS=no
 SYNC_HOME=no
 EOL
 fi
@@ -65,7 +65,6 @@ then
 OC_SERVER=https://nextcloud.pawsey.org.au/remote.php/webdav
 OC_USER_HOME=\$HOME
 OC_USER_HOME_DIR=\$HOME/pawsey-sync-home
-OC_UNSYNCED_FOLDERS=\$HOME/.pawsey-sync-unsynced-folders
 
 #SOURCE USER MADE CONFIG
 source "\$HOME/.pawsey-sync-config"
@@ -80,7 +79,7 @@ if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
       mkdir \$OC_USER_HOME_DIR
     fi
     #SYNC HOME DIRECTORY EXCLUDING DIRECTORY BELOW
-    docker container run --mount type=bind,source="\$OC_USER_HOME_DIR",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN --unsyncedfolders \$OC_UNSYNCED_FOLDERS /ocdata \$OC_SERVER
+    docker container run --mount type=bind,source="\$OC_USER_HOME_DIR",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN --unsyncedfolders /ocdata/.pawsey-sync-unsynced-folders /ocdata \$OC_SERVER
   fi
   if [ "\$SYNC_NIMBUS" == "yes" ]; then
     #CREATE SYNC DIRECTORY IF DOES NOT EXIST
