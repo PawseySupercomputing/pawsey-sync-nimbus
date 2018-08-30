@@ -3,6 +3,24 @@
 # Author cervigni
 # This script creates the pawsey sync crontab and files if they do not exist
 
+## INSTALL DEPENDENCIES
+release=`lsb_release -r | awk '{print $2}'`
+if [ $release != "16.04" ] || [ $release != "18.04" ]; then
+  echo 'This script supports only Ubuntu 16.04 or 18.04. Quitting ...'
+  exit 1
+fi
+
+echo 'Installing dependecies...'
+sudo apt-get update
+sudo apt-get remove docker docker-engine docker.io
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update
+sudo apt-get install docker-ce -y
+sudo usermod -aG docker $USER
+
 ## CHECK IF CRONTAB FILE FOR OWNCLOUD EXISTS, IF NOT CREATES IT
 
 if [ ! -e "$HOME/.pawsey-sync-crontab" ]
