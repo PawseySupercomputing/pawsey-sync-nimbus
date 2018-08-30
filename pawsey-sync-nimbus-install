@@ -95,4 +95,6 @@ if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
   fi
 fi
 EOL
+  #MAKE SCRIPT EXECUTABLE
+  chmod +x $HOME/.pawsey-sync/pawsey-sync
 fi
