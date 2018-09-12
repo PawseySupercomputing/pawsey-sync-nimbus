@@ -13,14 +13,12 @@ if [ ! $release == "Ubuntu" ]; then
 fi
 
 echo 'Installing dependecies...'
-sudo apt-get update
-sudo apt-get remove docker docker-engine docker.io
-sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo apt-key fingerprint 0EBFCD88
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 sudo apt-get update
-sudo apt-get install docker-ce -y
+sudo apt-get remove docker docker-engine docker.io
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common docker-ce -y
 sudo usermod -aG docker $USER
 
 ## CHECK IF CRONTAB FILE FOR OWNCLOUD EXISTS, IF NOT CREATES IT
@@ -105,7 +103,7 @@ if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
     then
       curl -X MKCOL "\$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
     fi
-    if [ -z "\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME" ]
+    if [ ! -d "\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME" ]
     then
       mkdir "\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME"
     fi
