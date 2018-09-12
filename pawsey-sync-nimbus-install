@@ -3,6 +3,8 @@
 # Author cervigni
 # This script creates the pawsey sync crontab and files if they do not exist
 
+OC_PAWSEY_SYNC_DIR_NAME=pawsey-sync
+
 ## INSTALL DEPENDENCIES
 release=`lsb_release -i | awk '{print $3}'`
 if [ ! $release == "Ubuntu" ]; then
@@ -29,13 +31,14 @@ then
   echo 'MAILTO=""' >> $HOME/.pawsey-sync-crontab
   echo "*/5 * * * * $HOME/.pawsey-sync/pawsey-sync" >> $HOME/.pawsey-sync-crontab
   crontab .pawsey-sync-crontab
+  rm $HOME/.pawsey-sync-crontab
   echo "- Pawsey Sync activated every 5 minutes..."
 fi
 
 ## CHECK IF CONFIGURATION FILE EXISTS, if it does not create it
 if [ ! -e "$HOME/.pawsey-sync-config" ]
 then
-  mkdir $HOME/.pawsey-sync
+  mkdir "$HOME/.pawsey-sync"
   cat > "$HOME/.pawsey-sync-config" << EOL
 #!/bin/bash
 
@@ -46,9 +49,9 @@ ACTIVATE_PAWSEY_SYNC=no
 OC_USERNAME=your-pawsey-username-here
 OC_DEVICE_TOKEN=device-token-goes-here
 
-# SYiNC OPTIONS
+# SYNC OPTIONS
 NIMBUS_SYNC_DIRECTORY=/data
-SYNC_NIMBUS=no
+SYNC_WORKING_DIR=no
 SYNC_HOME=no
 EOL
 fi
@@ -63,9 +66,7 @@ if [ ! -e "$OC_USER_HOME_DIR/.pawsey-sync-unsynced-folders" ]
 then
   cat > "$OC_USER_HOME_DIR/.pawsey-sync-unsynced-folders" << EOL
 ## LIST CONTAINING FOLDERS NOT TO SYNC only for home folder
-pawsey-sync-group
-pawsey-sync-scratch
-pawsey-sync-nimbus
+pawsey-sync
 EOL
 fi
 
@@ -83,8 +84,8 @@ then
 
 OC_SERVER=https://nextcloud.pawsey.org.au/remote.php/webdav
 OC_USER_HOME=\$HOME
-OC_USER_HOME_DIR=\$HOME/pawsey-sync-home
-
+OC_USER_HOME_DIR=\$HOME
+OC_PAWSEY_SYNC_DIR_NAME=pawsey-sync
 #SOURCE USER MADE CONFIG
 source "\$HOME/.pawsey-sync-config"
 
@@ -97,16 +98,16 @@ if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
     #SYNC HOME DIRECTORY EXCLUDING DIRECTORY BELOW
     docker container run --mount type=bind,source="\$OC_USER_HOME_DIR",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN --unsyncedfolders /ocdata/.pawsey-sync-unsynced-folders /ocdata \$OC_SERVER
   fi
-  if [ "\$SYNC_NIMBUS" == "yes" ]; then
+  if [ "\$SYNC_WORKING_DIR" == "yes" ]; then
     #CREATE SYNC DIRECTORY IF DOES NOT EXIST
-    echo curl -X PROPFIND "\$OC_SERVER/pawsey-sync-nimbus" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
-    direxist=\`curl -X PROPFIND "\$OC_SERVER/pawsey-sync-nimbus" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}\`
+    echo curl -X PROPFIND "\$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
+    direxist=\`curl -X PROPFIND "\$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}\`
     if [ -z "\$direxist" ]
     then
-      curl -X MKCOL "\$OC_SERVER/pawsey-sync-nimbus" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
+      curl -X MKCOL "\$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
     fi
     # SYNC ONLY NIMBUS
-    docker container run --mount type=bind,source="\$NIMBUS_SYNC_DIRECTORY",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN /ocdata \$OC_SERVER/pawsey-sync-nimbus
+    docker container run --mount type=bind,source="\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN /ocdata \$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME
   fi
 fi
 EOL
