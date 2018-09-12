@@ -30,7 +30,7 @@ then
   /usr/bin/crontab -l > $HOME/.pawsey-sync-crontab
   echo 'MAILTO=""' >> $HOME/.pawsey-sync-crontab
   echo "*/5 * * * * $HOME/.pawsey-sync/pawsey-sync" >> $HOME/.pawsey-sync-crontab
-  crontab .pawsey-sync-crontab
+  crontab $HOME/.pawsey-sync-crontab
   rm $HOME/.pawsey-sync-crontab
   echo "- Pawsey Sync activated every 5 minutes..."
 fi
@@ -100,11 +100,14 @@ if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
   fi
   if [ "\$SYNC_WORKING_DIR" == "yes" ]; then
     #CREATE SYNC DIRECTORY IF DOES NOT EXIST
-    echo curl -X PROPFIND "\$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
     direxist=\`curl -X PROPFIND "\$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}\`
     if [ -z "\$direxist" ]
     then
       curl -X MKCOL "\$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
+    fi
+    if [ -z "\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME" ]
+    then
+      mkdir "\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME"
     fi
     # SYNC ONLY NIMBUS
     docker container run --mount type=bind,source="\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN /ocdata \$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME
