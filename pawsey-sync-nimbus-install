@@ -57,7 +57,7 @@ EOL
 fi
 
 ## CREATE unsync folders file for HOME SYNC only
-OC_USER_HOME_DIR=$HOME/pawsey-sync-home
+OC_USER_HOME_DIR=$HOME
 if [ ! -d "$OC_USER_HOME_DIR" ]; then
   mkdir $OC_USER_HOME_DIR
 fi
