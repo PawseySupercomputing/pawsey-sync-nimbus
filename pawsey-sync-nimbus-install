@@ -69,7 +69,7 @@ if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
     direxist=\`curl -X PROPFIND "\$OC_SERVER/pawsey-sync-home" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}\`
     if [ -z "\$direxist" ]
     then
-      curl -X MKCOL "\$OC_SERVER/\$pawsey-sync-home" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
+      curl -X MKCOL "\$OC_SERVER/pawsey-sync-home" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
     fi
     #SYNC HOME DIRECTORY EXCLUDING DIRECTORY BELOW
     docker container run --mount type=bind,source="\$OC_USER_HOME_DIR",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN /ocdata \$OC_SERVER/pawsey-sync-home
