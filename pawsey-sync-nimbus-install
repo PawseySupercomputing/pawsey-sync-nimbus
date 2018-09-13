@@ -44,17 +44,7 @@ if [ ! -d "$OC_USER_HOME_DIR" ]; then
   mkdir $OC_USER_HOME_DIR
 fi
 
-if [ ! -e "$OC_USER_HOME_DIR/.pawsey-sync-unsynced-folders" ]
-then
-  cat > "$OC_USER_HOME_DIR/.pawsey-sync-unsynced-folders" << EOL
-## LIST CONTAINING FOLDERS NOT TO SYNC only for home folder
-pawsey-sync
-EOL
-fi
-
 echo "IMPORTANT: Please edit the file .pawsey-sync-config to activate syncronization and for further options."
-
-
 
 ## CHECK IF SYNC FILE FILE EXISTS, if it does not create it
 if [ ! -e "$HOME/.pawsey-sync/pawsey-sync" ]
@@ -75,8 +65,14 @@ source "\$HOME/.pawsey-sync-config"
 if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
   # IF ACTIVATED - SYNC
   if [ "\$SYNC_HOME" == "yes" ]; then
+    #CREATE SYNC DIRECTORY IF DOES NOT EXIST
+    direxist=\`curl -X PROPFIND "\$OC_SERVER/pawsey-sync-home" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}\`
+    if [ -z "\$direxist" ]
+    then
+      curl -X MKCOL "\$OC_SERVER/\$pawsey-sync-home" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
+    fi
     #SYNC HOME DIRECTORY EXCLUDING DIRECTORY BELOW
-    docker container run --mount type=bind,source="\$OC_USER_HOME_DIR",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN --unsyncedfolders /ocdata/.pawsey-sync-unsynced-folders /ocdata \$OC_SERVER
+    docker container run --mount type=bind,source="\$OC_USER_HOME_DIR",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN /ocdata \$OC_SERVER/pawsey-sync-home
   fi
   if [ "\$SYNC_WORKING_DIR" == "yes" ]; then
     #CREATE SYNC DIRECTORY IF DOES NOT EXIST
