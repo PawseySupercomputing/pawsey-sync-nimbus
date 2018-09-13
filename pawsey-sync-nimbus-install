@@ -72,7 +72,7 @@ if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
       curl -X MKCOL "\$OC_SERVER/pawsey-sync-home" -k -u \${OC_USERNAME}:\${OC_DEVICE_TOKEN}
     fi
     #SYNC HOME DIRECTORY EXCLUDING DIRECTORY BELOW
-    docker container run --mount type=bind,source="\$OC_USER_HOME_DIR",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN /ocdata \$OC_SERVER/pawsey-sync-home
+    docker container run --rm --mount type=bind,source="\$OC_USER_HOME_DIR",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN /ocdata \$OC_SERVER/pawsey-sync-home
   fi
   if [ "\$SYNC_WORKING_DIR" == "yes" ]; then
     #CREATE SYNC DIRECTORY IF DOES NOT EXIST
@@ -86,7 +86,7 @@ if [ "\$ACTIVATE_PAWSEY_SYNC" == "yes" ]; then
       mkdir "\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME"
     fi
     # SYNC ONLY NIMBUS
-    docker container run --mount type=bind,source="\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN /ocdata \$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME
+    docker container run --rm --mount type=bind,source="\$NIMBUS_SYNC_DIRECTORY/\$OC_PAWSEY_SYNC_DIR_NAME",target=/ocdata pawsey/pawsey_owncloud_client owncloudcmd --user \$OC_USERNAME --password \$OC_DEVICE_TOKEN /ocdata \$OC_SERVER/\$OC_PAWSEY_SYNC_DIR_NAME
   fi
 fi
 EOL
